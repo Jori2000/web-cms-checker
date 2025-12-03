@@ -11,6 +11,11 @@ import ResultBox from "@/components/ResultBox";
 const PageWrapper = styled.div<{ $theme: typeof lightTheme }>`
   min-height: 100vh;
   background: ${props => props.$theme.background};
+  background: linear-gradient(
+    135deg,
+    ${props => props.$theme.background} 0%,
+    ${props => props.$theme.cardBackground} 100%
+  );
   transition: background 0.3s ease;
 `;
 
@@ -39,6 +44,7 @@ const HeaderContent = styled.div`
   margin: 0 auto;
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 16px;
   
   @media (max-width: 768px) {
@@ -58,26 +64,24 @@ const Container = styled.div`
 `;
 
 const ThemeToggle = styled.button<{ $theme: typeof lightTheme }>`
-  position: fixed;
-  top: 12px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  background: ${props => props.$theme.cardBackground};
-  border: 2px solid ${props => props.$theme.border};
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: transparent;
+  border: none;
   cursor: pointer;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.5rem;
-  box-shadow: ${props => props.$theme.shadow};
-  transition: all 0.3s ease;
-  z-index: 1001;
+  font-size: 1.2rem;
+  color: ${props => props.$theme.textSecondary};
+  transition: all 0.2s ease;
+  flex-shrink: 0;
   
   &:hover {
-    transform: scale(1.1) rotate(10deg);
-    box-shadow: ${props => props.$theme.shadowHover};
+    background: ${props => props.$theme.inputBackground};
+    color: ${props => props.$theme.textPrimary};
+    transform: scale(1.05);
   }
   
   &:active {
@@ -85,11 +89,9 @@ const ThemeToggle = styled.button<{ $theme: typeof lightTheme }>`
   }
   
   @media (max-width: 768px) {
-    top: 6px;
-    right: 12px;
-    width: 44px;
-    height: 44px;
-    font-size: 1.3rem;
+    width: 32px;
+    height: 32px;
+    font-size: 1.1rem;
   }
 `;
 
@@ -148,6 +150,53 @@ const LogoSub = styled.div<{ $theme: typeof lightTheme }>`
   }
 `;
 
+const DescriptionWrapper = styled.div`
+  position: relative;
+  min-height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  
+  @media (max-width: 768px) {
+    min-height: 100px;
+  }
+`;
+
+const QuestionMarkCircle = styled.div<{ $theme: typeof lightTheme }>`
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background: ${props => props.$theme.gradient};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 4rem;
+  font-weight: 900;
+  color: white;
+  animation: slideOutLeft 1.2s ease-in-out forwards;
+  animation-delay: 0.5s;
+  z-index: 2;
+  
+  @keyframes slideOutLeft {
+    0% {
+      transform: translateX(0) scale(1);
+      opacity: 1;
+    }
+    100% {
+      transform: translateX(-150%) scale(0.8);
+      opacity: 0;
+    }
+  }
+  
+  @media (max-width: 768px) {
+    width: 80px;
+    height: 80px;
+    font-size: 3rem;
+  }
+`;
+
 const Subtitle = styled.p<{ $theme: typeof lightTheme }>`
   font-size: 1.1rem;
   color: ${props => props.$theme.textSecondary};
@@ -155,6 +204,20 @@ const Subtitle = styled.p<{ $theme: typeof lightTheme }>`
   margin: 0 auto;
   line-height: 1.6;
   text-align: center;
+  opacity: 0;
+  animation: fadeInText 0.8s ease-out forwards;
+  animation-delay: 1.2s;
+  
+  @keyframes fadeInText {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
   
   @media (max-width: 768px) {
     font-size: 1rem;
@@ -219,23 +282,28 @@ export default function Home() {
               <LogoSub $theme={currentTheme}>CHECK</LogoSub>
             </LogoText>
           </LogoContainer>
+          
+          <ThemeToggle 
+            onClick={toggleTheme} 
+            $theme={currentTheme}
+            aria-label="Toggle theme"
+          >
+            {theme === "light" ? "🌙" : "☀️"}
+          </ThemeToggle>
         </HeaderContent>
       </StickyHeader>
       
-      <ThemeToggle 
-        onClick={toggleTheme} 
-        $theme={currentTheme}
-        aria-label="Toggle theme"
-      >
-        {theme === "light" ? "🌙" : "☀️"}
-      </ThemeToggle>
-      
       <Container>
         <ContentHeader>
-          <Subtitle $theme={currentTheme}>
-            Finden Sie heraus, welches Content Management System eine Website verwendet.
-            Geben Sie einfach eine URL ein oder laden Sie eine CSV-Datei mit mehreren URLs hoch.
-          </Subtitle>
+          <DescriptionWrapper>
+            <QuestionMarkCircle $theme={currentTheme}>
+              ?
+            </QuestionMarkCircle>
+            <Subtitle $theme={currentTheme}>
+              Finde heraus, welches Content Management System eine Website verwendet.
+              Gib einfach eine URL ein oder lade eine CSV-Datei mit mehreren URLs hoch.
+            </Subtitle>
+          </DescriptionWrapper>
         </ContentHeader>
 
         <Card $theme={currentTheme}>
