@@ -14,20 +14,52 @@ const PageWrapper = styled.div<{ $theme: typeof lightTheme }>`
   transition: background 0.3s ease;
 `;
 
+const StickyHeader = styled.header<{ $theme: typeof lightTheme }>`
+  position: sticky;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 100;
+  background: ${props => props.$theme.background}ee;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid ${props => props.$theme.border}33;
+  padding: 16px 20px;
+  margin-bottom: 30px;
+  transition: all 0.3s ease;
+  
+  @media (max-width: 768px) {
+    padding: 12px 16px;
+    margin-bottom: 20px;
+  }
+`;
+
+const HeaderContent = styled.div`
+  max-width: 900px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  
+  @media (max-width: 768px) {
+    gap: 12px;
+  }
+`;
+
 const Container = styled.div`
   max-width: 900px;
   margin: 0 auto;
-  padding: 40px 20px;
+  padding: 0 20px 40px 20px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
   
   @media (max-width: 768px) {
-    padding: 20px 16px;
+    padding: 0 16px 20px 16px;
   }
 `;
 
 const ThemeToggle = styled.button<{ $theme: typeof lightTheme }>`
   position: fixed;
-  top: 20px;
+  top: 12px;
   right: 20px;
   width: 50px;
   height: 50px;
@@ -41,7 +73,7 @@ const ThemeToggle = styled.button<{ $theme: typeof lightTheme }>`
   font-size: 1.5rem;
   box-shadow: ${props => props.$theme.shadow};
   transition: all 0.3s ease;
-  z-index: 1000;
+  z-index: 1001;
   
   &:hover {
     transform: scale(1.1) rotate(10deg);
@@ -53,7 +85,7 @@ const ThemeToggle = styled.button<{ $theme: typeof lightTheme }>`
   }
   
   @media (max-width: 768px) {
-    top: 12px;
+    top: 6px;
     right: 12px;
     width: 44px;
     height: 44px;
@@ -61,41 +93,72 @@ const ThemeToggle = styled.button<{ $theme: typeof lightTheme }>`
   }
 `;
 
-const Header = styled.header`
-  text-align: center;
-  margin-bottom: 50px;
+const ContentHeader = styled.div`
+  margin-bottom: 30px;
   
   @media (max-width: 768px) {
-    margin-bottom: 30px;
+    margin-bottom: 20px;
   }
 `;
 
-const Title = styled.h1<{ $theme: typeof lightTheme }>`
-  font-size: 3rem;
-  font-weight: 700;
-  margin: 0 0 20px 0;
+const LogoContainer = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  
+  @media (max-width: 768px) {
+    gap: 12px;
+  }
+`;
+
+const LogoText = styled.div`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+`;
+
+const LogoMain = styled.div<{ $theme: typeof lightTheme }>`
+  font-size: 2rem;
+  font-weight: 900;
+  line-height: 0.9;
+  letter-spacing: 0em;
   background: ${props => props.$theme.gradient};
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  text-transform: uppercase;
   
   @media (max-width: 768px) {
-    font-size: 2rem;
-    margin: 0 0 16px 0;
+    font-size: 1.5rem;
+  }
+`;
+
+const LogoSub = styled.div<{ $theme: typeof lightTheme }>`
+  font-size: 0.8rem;
+  font-weight: 700;
+  line-height: 1;
+  letter-spacing: 0.5em;
+  color: ${props => props.$theme.textPrimary};
+  text-transform: uppercase;
+  
+  @media (max-width: 768px) {
+    font-size: 0.65rem;
+    letter-spacing: 0.43em;
   }
 `;
 
 const Subtitle = styled.p<{ $theme: typeof lightTheme }>`
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   color: ${props => props.$theme.textSecondary};
-  max-width: 600px;
+  max-width: 700px;
   margin: 0 auto;
   line-height: 1.6;
+  text-align: center;
   
   @media (max-width: 768px) {
     font-size: 1rem;
     line-height: 1.5;
-    padding: 0 8px;
   }
 `;
 
@@ -148,6 +211,17 @@ export default function Home() {
 
   return (
     <PageWrapper $theme={currentTheme}>
+      <StickyHeader $theme={currentTheme}>
+        <HeaderContent>
+          <LogoContainer>
+            <LogoText>
+              <LogoMain $theme={currentTheme}>CMS</LogoMain>
+              <LogoSub $theme={currentTheme}>CHECK</LogoSub>
+            </LogoText>
+          </LogoContainer>
+        </HeaderContent>
+      </StickyHeader>
+      
       <ThemeToggle 
         onClick={toggleTheme} 
         $theme={currentTheme}
@@ -157,13 +231,12 @@ export default function Home() {
       </ThemeToggle>
       
       <Container>
-        <Header>
-          <Title $theme={currentTheme}>🔍 CMS Checker</Title>
+        <ContentHeader>
           <Subtitle $theme={currentTheme}>
             Finden Sie heraus, welches Content Management System eine Website verwendet.
             Geben Sie einfach eine URL ein oder laden Sie eine CSV-Datei mit mehreren URLs hoch.
           </Subtitle>
-        </Header>
+        </ContentHeader>
 
         <Card $theme={currentTheme}>
           <UrlInput onResult={setResult} theme={currentTheme} />
