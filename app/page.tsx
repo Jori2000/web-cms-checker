@@ -19,6 +19,10 @@ const Container = styled.div`
   margin: 0 auto;
   padding: 40px 20px;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  
+  @media (max-width: 768px) {
+    padding: 20px 16px;
+  }
 `;
 
 const ThemeToggle = styled.button<{ $theme: typeof lightTheme }>`
@@ -47,11 +51,23 @@ const ThemeToggle = styled.button<{ $theme: typeof lightTheme }>`
   &:active {
     transform: scale(0.95);
   }
+  
+  @media (max-width: 768px) {
+    top: 12px;
+    right: 12px;
+    width: 44px;
+    height: 44px;
+    font-size: 1.3rem;
+  }
 `;
 
 const Header = styled.header`
   text-align: center;
   margin-bottom: 50px;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 30px;
+  }
 `;
 
 const Title = styled.h1<{ $theme: typeof lightTheme }>`
@@ -62,6 +78,11 @@ const Title = styled.h1<{ $theme: typeof lightTheme }>`
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  
+  @media (max-width: 768px) {
+    font-size: 2rem;
+    margin: 0 0 16px 0;
+  }
 `;
 
 const Subtitle = styled.p<{ $theme: typeof lightTheme }>`
@@ -70,6 +91,12 @@ const Subtitle = styled.p<{ $theme: typeof lightTheme }>`
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
+  
+  @media (max-width: 768px) {
+    font-size: 1rem;
+    line-height: 1.5;
+    padding: 0 8px;
+  }
 `;
 
 const Card = styled.div<{ $theme: typeof lightTheme }>`
@@ -79,6 +106,11 @@ const Card = styled.div<{ $theme: typeof lightTheme }>`
   box-shadow: ${props => props.$theme.shadow};
   margin-bottom: 30px;
   transition: all 0.3s ease;
+  
+  @media (max-width: 768px) {
+    padding: 24px 16px;
+    border-radius: 12px;
+  }
 `;
 
 const Divider = styled.div<{ $theme: typeof lightTheme }>`

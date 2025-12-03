@@ -16,6 +16,11 @@ const Header = styled.div`
   margin-bottom: 20px;
   flex-wrap: wrap;
   gap: 12px;
+  
+  @media (max-width: 768px) {
+    justify-content: center;
+    text-align: center;
+  }
 `;
 
 const Title = styled.h2<{ $theme: Theme }>`
@@ -23,6 +28,12 @@ const Title = styled.h2<{ $theme: Theme }>`
   font-weight: 600;
   color: ${props => props.$theme.textPrimary};
   margin: 0;
+  
+  @media (max-width: 768px) {
+    font-size: 1.3rem;
+    width: 100%;
+    order: 1;
+  }
 `;
 
 const CopyButton = styled.button<{ $theme: Theme }>`
@@ -46,6 +57,14 @@ const CopyButton = styled.button<{ $theme: Theme }>`
   &:active {
     transform: translateY(0);
   }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    order: 2;
+    justify-content: center;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+  }
 `;
 
 const ResultCard = styled.div<{ $theme: Theme }>`
@@ -56,6 +75,11 @@ const ResultCard = styled.div<{ $theme: Theme }>`
   margin-bottom: 16px;
   border-left: 4px solid ${props => props.$theme.primary};
   transition: all 0.3s ease;
+  
+  @media (max-width: 768px) {
+    padding: 20px 16px;
+    border-radius: 10px;
+  }
 `;
 
 const SingleResultCard = styled(ResultCard)<{ $theme: Theme }>`
@@ -75,6 +99,10 @@ const CMSName = styled.div<{ $theme: Theme }>`
   font-weight: 700;
   color: ${props => props.$theme.textPrimary};
   margin-bottom: 8px;
+  
+  @media (max-width: 768px) {
+    font-size: 1.2rem;
+  }
 `;
 
 const InfoGrid = styled.div`
@@ -82,6 +110,11 @@ const InfoGrid = styled.div`
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
   gap: 16px;
   margin-top: 16px;
+  
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 `;
 
 const InfoItem = styled.div`
@@ -139,6 +172,11 @@ const ReasonTag = styled.span<{ $theme: Theme }>`
   color: ${props => props.$theme.textPrimary};
   font-size: 0.85rem;
   border: 1px solid ${props => props.$theme.border};
+  
+  @media (max-width: 768px) {
+    font-size: 0.8rem;
+    padding: 4px 8px;
+  }
 `;
 
 const CopyFeedback = styled.span<{ $show: boolean }>`

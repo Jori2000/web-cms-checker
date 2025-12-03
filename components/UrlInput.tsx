@@ -20,6 +20,11 @@ const InputWrapper = styled.div`
   display: flex;
   gap: 12px;
   align-items: stretch;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    gap: 10px;
+  }
 `;
 
 const Input = styled.input<{ $theme: Theme }>`
@@ -40,6 +45,12 @@ const Input = styled.input<{ $theme: Theme }>`
   
   &::placeholder {
     color: ${props => props.$theme.textMuted};
+  }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 16px; /* Verhindert Zoom auf iOS */
   }
 `;
 
@@ -68,6 +79,12 @@ const Button = styled.button<{ $theme: Theme }>`
     opacity: 0.6;
     cursor: not-allowed;
     transform: none;
+  }
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    padding: 14px 24px;
+    white-space: normal;
   }
 `;
 

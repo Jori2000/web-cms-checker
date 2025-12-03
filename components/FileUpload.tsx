@@ -29,6 +29,10 @@ const UploadArea = styled.div<{ $isDragging: boolean; $theme: Theme }>`
     border-color: ${props => props.$theme.primary};
     background: ${props => `${props.$theme.primary}11`};
   }
+  
+  @media (max-width: 768px) {
+    padding: 24px 16px;
+  }
 `;
 
 const HiddenInput = styled.input`
@@ -38,12 +42,20 @@ const HiddenInput = styled.input`
 const UploadIcon = styled.div`
   font-size: 3rem;
   margin-bottom: 10px;
+  
+  @media (max-width: 768px) {
+    font-size: 2.5rem;
+  }
 `;
 
 const UploadText = styled.p<{ $theme: Theme }>`
   color: ${props => props.$theme.textSecondary};
   margin: 8px 0;
   font-size: 0.95rem;
+  
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+  }
 `;
 
 const UploadButton = styled.button<{ $theme: Theme }>`
@@ -61,6 +73,11 @@ const UploadButton = styled.button<{ $theme: Theme }>`
     background: ${props => props.$theme.primary};
     color: white;
   }
+  
+  @media (max-width: 768px) {
+    padding: 12px 20px;
+    font-size: 0.95rem;
+  }
 `;
 
 const FileName = styled.div<{ $theme: Theme }>`
@@ -74,6 +91,12 @@ const FileName = styled.div<{ $theme: Theme }>`
   align-items: center;
   justify-content: center;
   gap: 8px;
+  
+  @media (max-width: 768px) {
+    font-size: 0.9rem;
+    padding: 10px;
+    word-break: break-all;
+  }
 `;
 
 export default function FileUpload({ onResult, theme }: { onResult: (d: any) => void; theme: Theme }) {
