@@ -65,43 +65,43 @@ export function detectAll(html: string, headers: Record<string, string>) {
       regex: /wp-content|wp-includes/i,
       cms: "WordPress",
       score: 80,
-      reason: "WordPress-Dateipfade gefunden"
+      reason: "WordPress-path found"
     },
     shopify_cdn: {
       regex: /cdn\.shopify\.com|Shopify.theme|storefront/i,
       cms: "Shopify",
       score: 80,
-      reason: "Shopify CDN gefunden"
+      reason: "Shopify CDN found"
     },
     wix: {
       regex: /wixsite|static\.wixstatic\.com/i,
       cms: "Wix",
       score: 80,
-      reason: "Wix-typische Assets gefunden"
+      reason: "Wix-specific assets found"
     },
     drupal: {
       regex: /drupal-settings-json/i,
       cms: "Drupal",
       score: 70,
-      reason: "Drupal Settings gefunden"
+      reason: "Drupal Settings found"
     },
     typo3: {
       regex: /typo3/i,
       cms: "Typo3",
       score: 60,
-      reason: "Typo3 Hinweise gefunden"
+      reason: "Typo3 found"
     },
     squarespace: {
       regex: /squarespace\.com|static1\.squarespace/i,
       cms: "Squarespace",
       score: 70,
-      reason: "Squarespace Assets gefunden"
+      reason: "Squarespace Assets found"
     },
     webflow: {
       regex: /webflow\.js|w\-nav/i,
       cms: "Webflow",
       score: 70,
-      reason: "Webflow Patterns gefunden"
+      reason: "Webflow Patterns found"
     }
   };
 
@@ -115,7 +115,7 @@ export function detectAll(html: string, headers: Record<string, string>) {
   // --------------------------------------
   // 4. FALLBACK: JAVASCRIPT FRAMEWORK SIGNATURES
   // --------------------------------------
-  if (/__NEXT_DATA__/.test(html)) addResult("Next.js (kein klassisches CMS)", 30, "Next.js JSON Payload");
+  if (/__NEXT_DATA__/.test(html)) addResult("Next.js (not a traditional CMS)", 30, "Next.js JSON Payload");
   if (/<div id=["']__nuxt/.test(html)) addResult("Nuxt.js", 30, "Nuxt Root Element");
 
   // --------------------------------------
@@ -125,7 +125,7 @@ export function detectAll(html: string, headers: Record<string, string>) {
     return {
       cms: "Unbekannt",
       confidence: 0,
-      reasons: ["Keine Muster gefunden"]
+      reasons: ["No CMS indicators found"]
     };
   }
 
