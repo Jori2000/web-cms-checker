@@ -2,31 +2,32 @@
 
 import styled from "styled-components";
 import { useState, useRef } from "react";
+import type { Theme } from "@/styles/theme";
 
 const Box = styled.div`
   margin-top: 10px;
 `;
 
-const Label = styled.label`
+const Label = styled.label<{ $theme: Theme }>`
   display: block;
   font-weight: 600;
   margin-bottom: 10px;
-  color: #333;
+  color: ${props => props.$theme.textPrimary};
   font-size: 1rem;
 `;
 
-const UploadArea = styled.div<{ $isDragging: boolean }>`
-  border: 2px dashed ${props => props.$isDragging ? '#667eea' : '#e0e0e0'};
+const UploadArea = styled.div<{ $isDragging: boolean; $theme: Theme }>`
+  border: 2px dashed ${props => props.$isDragging ? props.$theme.primary : props.$theme.border};
   border-radius: 10px;
   padding: 30px;
   text-align: center;
-  background: ${props => props.$isDragging ? 'rgba(102, 126, 234, 0.05)' : '#fafafa'};
+  background: ${props => props.$isDragging ? `${props.$theme.primary}11` : props.$theme.inputBackground};
   transition: all 0.2s ease;
   cursor: pointer;
   
   &:hover {
-    border-color: #667eea;
-    background: rgba(102, 126, 234, 0.05);
+    border-color: ${props => props.$theme.primary};
+    background: ${props => `${props.$theme.primary}11`};
   }
 `;
 
@@ -39,35 +40,35 @@ const UploadIcon = styled.div`
   margin-bottom: 10px;
 `;
 
-const UploadText = styled.p`
-  color: #666;
+const UploadText = styled.p<{ $theme: Theme }>`
+  color: ${props => props.$theme.textSecondary};
   margin: 8px 0;
   font-size: 0.95rem;
 `;
 
-const UploadButton = styled.button`
+const UploadButton = styled.button<{ $theme: Theme }>`
   margin-top: 12px;
   padding: 10px 24px;
   border-radius: 8px;
-  background: white;
-  color: #667eea;
+  background: ${props => props.$theme.cardBackground};
+  color: ${props => props.$theme.primary};
   font-weight: 600;
   cursor: pointer;
-  border: 2px solid #667eea;
+  border: 2px solid ${props => props.$theme.primary};
   transition: all 0.2s ease;
   
   &:hover {
-    background: #667eea;
+    background: ${props => props.$theme.primary};
     color: white;
   }
 `;
 
-const FileName = styled.div`
+const FileName = styled.div<{ $theme: Theme }>`
   margin-top: 15px;
   padding: 12px;
-  background: #e8f5e9;
+  background: ${props => `${props.$theme.success}22`};
   border-radius: 8px;
-  color: #2e7d32;
+  color: ${props => props.$theme.success};
   font-weight: 500;
   display: flex;
   align-items: center;
@@ -75,7 +76,7 @@ const FileName = styled.div`
   gap: 8px;
 `;
 
-export default function FileUpload({ onResult }: { onResult: (d: any) => void }) {
+export default function FileUpload({ onResult, theme }: { onResult: (d: any) => void; theme: Theme }) {
   const [isDragging, setIsDragging] = useState(false);
   const [selectedFile, setSelectedFile] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -133,23 +134,24 @@ export default function FileUpload({ onResult }: { onResult: (d: any) => void })
 
   return (
     <Box>
-      <Label>CSV upload</Label>
+      <Label $theme={theme}>CSV-Datei hochladen</Label>
       <UploadArea
         $isDragging={isDragging}
+        $theme={theme}
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={handleClick}
       >
         <UploadIcon>📄</UploadIcon>
-        <UploadText>
-          <strong>Drop file here</strong> or click to select
+        <UploadText $theme={theme}>
+          <strong>Datei hier ablegen</strong> oder klicken zum Auswählen
         </UploadText>
-        <UploadText style={{ fontSize: '0.85rem', color: '#999' }}>
-          CSV files with multiple URLs are supported
+        <UploadText $theme={theme} style={{ fontSize: '0.85rem' }}>
+          CSV-Dateien mit mehreren URLs werden unterstützt
         </UploadText>
-        <UploadButton type="button">
-          Select file
+        <UploadButton $theme={theme} type="button">
+          Datei auswählen
         </UploadButton>
         <HiddenInput
           ref={fileInputRef}
@@ -159,13 +161,13 @@ export default function FileUpload({ onResult }: { onResult: (d: any) => void })
         />
       </UploadArea>
       {loading && (
-        <FileName>
-          ⏳ Analyzing {selectedFile}...
+        <FileName $theme={theme}>
+          ⏳ Analysiere {selectedFile}...
         </FileName>
       )}
       {selectedFile && !loading && (
-        <FileName>
-          ✅ {selectedFile} successfully analyzed
+        <FileName $theme={theme}>
+          ✅ {selectedFile} erfolgreich analysiert
         </FileName>
       )}
     </Box>

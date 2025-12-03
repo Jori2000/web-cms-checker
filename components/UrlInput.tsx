@@ -2,16 +2,17 @@
 
 import styled from "styled-components";
 import { useState } from "react";
+import type { Theme } from "@/styles/theme";
 
 const Box = styled.div`
   margin-bottom: 10px;
 `;
 
-const Label = styled.label`
+const Label = styled.label<{ $theme: Theme }>`
   display: block;
   font-weight: 600;
   margin-bottom: 10px;
-  color: #333;
+  color: ${props => props.$theme.textPrimary};
   font-size: 1rem;
 `;
 
@@ -21,29 +22,31 @@ const InputWrapper = styled.div`
   align-items: stretch;
 `;
 
-const Input = styled.input`
+const Input = styled.input<{ $theme: Theme }>`
   flex: 1;
   padding: 14px 18px;
   border-radius: 10px;
-  border: 2px solid #e0e0e0;
+  border: 2px solid ${props => props.$theme.border};
+  background: ${props => props.$theme.inputBackground};
+  color: ${props => props.$theme.textPrimary};
   font-size: 1rem;
   transition: all 0.2s ease;
   
   &:focus {
     outline: none;
-    border-color: #667eea;
-    box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    border-color: ${props => props.$theme.primary};
+    box-shadow: 0 0 0 3px ${props => props.$theme.primary}33;
   }
   
   &::placeholder {
-    color: #999;
+    color: ${props => props.$theme.textMuted};
   }
 `;
 
-const Button = styled.button`
+const Button = styled.button<{ $theme: Theme }>`
   padding: 14px 32px;
   border-radius: 10px;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  background: ${props => props.$theme.gradient};
   color: white;
   font-weight: 600;
   font-size: 1rem;
@@ -54,7 +57,7 @@ const Button = styled.button`
   
   &:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    box-shadow: ${props => props.$theme.shadowHover};
   }
   
   &:active {
@@ -68,13 +71,13 @@ const Button = styled.button`
   }
 `;
 
-export default function UrlInput({ onResult }: { onResult: (d: any) => void }) {
+export default function UrlInput({ onResult, theme }: { onResult: (d: any) => void; theme: Theme }) {
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
 
   const handleCheck = async () => {
     if (!url.trim()) return;
-    
+
     setLoading(true);
     try {
       const res = await fetch("/api/detect", {
@@ -98,18 +101,19 @@ export default function UrlInput({ onResult }: { onResult: (d: any) => void }) {
 
   return (
     <Box>
-      <Label>Check URL</Label>
+      <Label $theme={theme}>URL prüfen</Label>
       <InputWrapper>
         <Input
+          $theme={theme}
           type="url"
-          placeholder="https://example.com"
+          placeholder="https://beispiel.de"
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           onKeyPress={handleKeyPress}
           disabled={loading}
         />
-        <Button onClick={handleCheck} disabled={loading || !url.trim()}>
-          {loading ? "Checking..." : "Analyze"}
+        <Button $theme={theme} onClick={handleCheck} disabled={loading || !url.trim()}>
+          {loading ? "Prüfe..." : "Analysieren"}
         </Button>
       </InputWrapper>
     </Box>

@@ -40,9 +40,11 @@ export function detectAll(html: string, headers: Record<string, string>) {
   const generatorMatch = html.match(/<meta name=["']generator["'] content=["']([^"']+)/i);
   if (generatorMatch) {
     const gen = generatorMatch[1].toLowerCase();
-    if (gen.includes("wordpress")) addResult("WordPress", 60, "Generator-Tag");
-    if (gen.includes("joomla")) addResult("Joomla", 60, "Generator-Tag");
-    if (gen.includes("drupal")) addResult("Drupal", 60, "Generator-Tag");
+    if (gen.includes("wordpress")) addResult("WordPress", 80, "Generator-Tag");
+    if (gen.includes("joomla")) addResult("Joomla", 80, "Generator-Tag");
+    if (gen.includes("drupal")) addResult("Drupal", 80, "Generator-Tag");
+    if (gen.includes("typo3")) addResult("TYPO3", 80, "Generator-Tag");
+    if (gen.includes("contao")) addResult("Contao", 80, "Generator-Tag");
   }
 
   // --------------------------------------
@@ -86,10 +88,16 @@ export function detectAll(html: string, headers: Record<string, string>) {
       reason: "Drupal Settings found"
     },
     typo3: {
-      regex: /typo3/i,
-      cms: "Typo3",
-      score: 60,
-      reason: "Typo3 found"
+      regex: /typo3conf\/|typo3temp\/|\/typo3\//i,
+      cms: "TYPO3",
+      score: 80,
+      reason: "TYPO3 directory structure found"
+    },
+    contao: {
+      regex: /\/system\/modules\/|contao\-core|\/contao\//i,
+      cms: "Contao",
+      score: 75,
+      reason: "Contao file structure found"
     },
     squarespace: {
       regex: /squarespace\.com|static1\.squarespace/i,
@@ -128,6 +136,13 @@ export function detectAll(html: string, headers: Record<string, string>) {
       reasons: ["No CMS indicators found"]
     };
   }
+
+  // Confidence auf maximal 100 begrenzen
+  results.forEach(result => {
+    if (result.confidence > 100) {
+      result.confidence = 100;
+    }
+  });
 
   results.sort((a, b) => b.confidence - a.confidence);
   return results[0];

@@ -10,7 +10,16 @@ export async function POST(req: NextRequest) {
   }
 
   if (data.csv) {
-    const urls = data.csv.split(/\r?\n/).filter(Boolean);
+    // Erst nach Zeilenumbrüchen trennen, dann jede Zeile nach Kommas
+    const lines = data.csv.split(/\r?\n/);
+    const urls: string[] = [];
+    
+    for (const line of lines) {
+      // Jede Zeile nach Kommas trennen und Whitespace entfernen
+      const urlsInLine = line.split(',').map((url: string) => url.trim()).filter(Boolean);
+      urls.push(...urlsInLine);
+    }
+    
     const results = [];
 
     for (const url of urls) {
