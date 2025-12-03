@@ -1,11 +1,12 @@
 "use client";
 
 import styled from "styled-components";
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import type { Theme } from "@/styles/theme";
 
 const Container = styled.div`
   margin-top: 30px;
+  scroll-margin-top: 20px;
 `;
 
 const Header = styled.div`
@@ -148,6 +149,20 @@ const CopyFeedback = styled.span<{ $show: boolean }>`
 
 export default function ResultBox({ data, theme }: { data: any; theme: Theme }) {
   const [copied, setCopied] = useState(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll zum Ergebnis, wenn neue Daten geladen werden
+  useEffect(() => {
+    if (data && containerRef.current) {
+      // Kleine Verzögerung für smoothes Scroll-Verhalten
+      setTimeout(() => {
+        containerRef.current?.scrollIntoView({ 
+          behavior: 'smooth', 
+          block: 'start' 
+        });
+      }, 100);
+    }
+  }, [data]);
 
   if (!data) return null;
 
@@ -166,7 +181,7 @@ export default function ResultBox({ data, theme }: { data: any; theme: Theme }) 
   const results = isMultiple ? data : [data];
 
   return (
-    <Container>
+    <Container ref={containerRef}>
       <Header>
         <Title $theme={theme}>
           {isMultiple ? `🔍 ${results.length} Ergebnisse` : "🔍 Ergebnis"}
