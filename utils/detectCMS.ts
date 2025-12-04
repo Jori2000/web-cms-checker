@@ -4,12 +4,28 @@ export async function detectCMSFromUrl(url: string) {
     const res = await fetch(url, {
       method: "GET",
       headers: {
-        "User-Agent": "CMS-Checker/1.0"
+        "User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8",
+        "Accept-Language": "de-DE,de;q=0.9,en-US;q=0.8,en;q=0.7",
+        "Accept-Encoding": "gzip, deflate, br",
+        "Cache-Control": "no-cache"
       }
     });
 
     const html = await res.text();
     const headers = Object.fromEntries(res.headers.entries());
+
+    // Prüfe, ob die Seite den Zugriff blockiert hat
+    if (html.length < 5000 && /access.*denied|blocked|captcha|challenge|protection/i.test(html)) {
+      return {
+        cms: "⚠️ Zugriff blockiert",
+        confidence: 0,
+        reasons: [
+          "Die Website blockiert automatisierte Zugriffe (Bot-Protection).",
+          "Bitte öffne die URL im Browser, um das CMS manuell zu identifizieren."
+        ]
+      };
+    }
 
     return detectAll(html, headers);
   } catch (e) {
@@ -37,7 +53,11 @@ export function detectAll(html: string, headers: Record<string, string>) {
   // --------------------------------------
   // 1. GENERATOR-TAGS
   // --------------------------------------
-  const generatorMatch = html.match(/<meta name=["']generator["'] content=["']([^"']+)/i);
+  // Suche nach Generator Meta-Tag (unterstützt verschiedene Attribut-Reihenfolgen, Leerzeichen und zusätzliche Attribute)
+  const generatorMatch = html.match(/<meta[^>]*name=["']generator["'][^>]*content=["']([^"']+)["'][^>]*>/i) ||
+                         html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']generator["'][^>]*>/i);
+  
+  console.log('Generator Meta Tag:', generatorMatch);
   if (generatorMatch) {
     const gen = generatorMatch[1].toLowerCase();
     if (gen.includes("wordpress")) addResult("WordPress", 80, "Generator-Tag");
@@ -45,6 +65,11 @@ export function detectAll(html: string, headers: Record<string, string>) {
     if (gen.includes("drupal")) addResult("Drupal", 80, "Generator-Tag");
     if (gen.includes("typo3")) addResult("TYPO3", 80, "Generator-Tag");
     if (gen.includes("contao")) addResult("Contao", 80, "Generator-Tag");
+    if (gen.includes("ghost")) addResult("Ghost", 80, "Generator-Tag");
+    if (gen.includes("craft cms")) addResult("Craft CMS", 80, "Generator-Tag");
+    if (gen.includes("modx")) addResult("MODX", 80, "Generator-Tag");
+    if (gen.includes("prestashop")) addResult("PrestaShop", 80, "Generator-Tag");
+    if (gen.includes("magento")) addResult("Magento", 80, "Generator-Tag");
   }
 
   // --------------------------------------
@@ -54,10 +79,19 @@ export function detectAll(html: string, headers: Record<string, string>) {
   if (/wp/i.test(power)) addResult("WordPress", 50, "x-powered-by Header");
   if (/shopify/i.test(power)) addResult("Shopify", 50, "x-powered-by Header");
   if (/wix/i.test(power)) addResult("Wix", 50, "x-powered-by Header");
+  if (/craft cms/i.test(power)) addResult("Craft CMS", 50, "x-powered-by Header");
+  if (/prestashop/i.test(power)) addResult("PrestaShop", 50, "x-powered-by Header");
 
   // Server Header
   const server = headers["server"] || "";
   if (/cloudflare|shopify/i.test(server)) addResult("Shopify", 20, "Server Header Hinweis");
+  
+  // Weitere spezifische Headers
+  const xGenerator = headers["x-generator"] || "";
+  if (xGenerator) {
+    if (/drupal/i.test(xGenerator)) addResult("Drupal", 70, "X-Generator Header");
+    if (/craft cms/i.test(xGenerator)) addResult("Craft CMS", 70, "X-Generator Header");
+  }
 
   // --------------------------------------
   // 3. HTML-KEYWORDS & FILEPATHS
@@ -70,7 +104,7 @@ export function detectAll(html: string, headers: Record<string, string>) {
       reason: "WordPress-path found"
     },
     shopify_cdn: {
-      regex: /cdn\.shopify\.com|Shopify.theme|storefront/i,
+      regex: /cdn\.shopify\.com|Shopify\.theme|storefront/i,
       cms: "Shopify",
       score: 80,
       reason: "Shopify CDN found"
@@ -82,10 +116,10 @@ export function detectAll(html: string, headers: Record<string, string>) {
       reason: "Wix-specific assets found"
     },
     drupal: {
-      regex: /drupal-settings-json/i,
+      regex: /drupal-settings-json|\/sites\/default\/files|Drupal\.settings|data-drupal-|drupal\.js|\/core\/misc\/drupal/i,
       cms: "Drupal",
-      score: 70,
-      reason: "Drupal Settings found"
+      score: 75,
+      reason: "Drupal patterns found"
     },
     typo3: {
       regex: /typo3conf\/|typo3temp\/|\/typo3\//i,
@@ -99,6 +133,12 @@ export function detectAll(html: string, headers: Record<string, string>) {
       score: 75,
       reason: "Contao file structure found"
     },
+    joomla: {
+      regex: /\/components\/com_|\/media\/jui\/|Joomla!/i,
+      cms: "Joomla",
+      score: 75,
+      reason: "Joomla components found"
+    },
     squarespace: {
       regex: /squarespace\.com|static1\.squarespace/i,
       cms: "Squarespace",
@@ -110,6 +150,90 @@ export function detectAll(html: string, headers: Record<string, string>) {
       cms: "Webflow",
       score: 70,
       reason: "Webflow Patterns found"
+    },
+    ghost: {
+      regex: /ghost\.css|\/ghost\/api\/|\/assets\/ghost\//i,
+      cms: "Ghost",
+      score: 75,
+      reason: "Ghost CMS patterns found"
+    },
+    craft_cms: {
+      regex: /\/cpresources\/|CraftSessionId|craftcms/i,
+      cms: "Craft CMS",
+      score: 75,
+      reason: "Craft CMS detected"
+    },
+    magento: {
+      regex: /\/static\/version|Mage\.Cookies|\/mage\/|magento/i,
+      cms: "Magento",
+      score: 75,
+      reason: "Magento patterns found"
+    },
+    prestashop: {
+      regex: /\/modules\/|prestashop|ps_shoppingcart/i,
+      cms: "PrestaShop",
+      score: 70,
+      reason: "PrestaShop detected"
+    },
+    opencart: {
+      regex: /route=product\/product|catalog\/view\/theme|opencart/i,
+      cms: "OpenCart",
+      score: 70,
+      reason: "OpenCart patterns found"
+    },
+    modx: {
+      regex: /\/assets\/components\/|modx|manager\/assets/i,
+      cms: "MODX",
+      score: 70,
+      reason: "MODX detected"
+    },
+    kirby: {
+      regex: /\/content\/|kirby-toolkit|site\/snippets/i,
+      cms: "Kirby",
+      score: 65,
+      reason: "Kirby CMS patterns found"
+    },
+    statamic: {
+      regex: /statamic|cp\/assets/i,
+      cms: "Statamic",
+      score: 70,
+      reason: "Statamic detected"
+    },
+    umbraco: {
+      regex: /\/umbraco\/|Umbraco\.Sys/i,
+      cms: "Umbraco",
+      score: 75,
+      reason: "Umbraco detected"
+    },
+    sitecore: {
+      regex: /\/sitecore\/|Sitecore\.Context/i,
+      cms: "Sitecore",
+      score: 75,
+      reason: "Sitecore detected"
+    },
+    silverstripe: {
+      regex: /\/silverstripe-cache\/|SilverStripe/i,
+      cms: "SilverStripe",
+      score: 70,
+      reason: "SilverStripe detected"
+    },
+    concrete5: {
+      regex: /\/concrete\/|CCM_APPLICATION_NAME|concrete5/i,
+      cms: "Concrete CMS",
+      score: 70,
+      reason: "Concrete CMS (concrete5) detected"
+    },
+    october_cms: {
+      regex: /\/modules\/system\/assets\/|october_session|octobercms/i,
+      cms: "October CMS",
+      score: 70,
+      reason: "October CMS detected"
+    },
+    grav: {
+      regex: /\/user\/themes\/|grav-loading|Grav\./i,
+      cms: "Grav",
+      score: 70,
+      reason: "Grav CMS detected"
     }
   };
 

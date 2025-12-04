@@ -150,6 +150,18 @@ const ConfidenceBadge = styled.span<{ $confidence: number; $theme: Theme }>`
   color: white;
 `;
 
+const WarningCard = styled(ResultCard)<{ $theme: Theme }>`
+  border-left: 4px solid ${props => props.$theme.warning};
+  background: ${props => props.$theme.warning}10;
+`;
+
+const WarningMessage = styled.div<{ $theme: Theme }>`
+  color: ${props => props.$theme.textSecondary};
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin-top: 8px;
+`;
+
 const ReasonsList = styled.div`
   margin-top: 12px;
 `;
@@ -231,7 +243,9 @@ export default function ResultBox({ data, theme }: { data: any; theme: Theme }) 
       </Header>
 
       {results.map((result: any, index: number) => {
-        const CardComponent = isMultiple ? ResultCard : SingleResultCard;
+        // Prüfe, ob es eine Warnung ist (blockierte Seite)
+        const isBlocked = result.cms?.includes("blockiert") || result.cms?.includes("⚠️");
+        const CardComponent = isBlocked ? WarningCard : (isMultiple ? ResultCard : SingleResultCard);
         
         return (
           <CardComponent key={index} $theme={theme}>
@@ -268,10 +282,22 @@ export default function ResultBox({ data, theme }: { data: any; theme: Theme }) 
 
             {result.reasons && result.reasons.length > 0 && (
               <ReasonsList>
-                <ReasonsTitle $theme={theme}>Erkennungsmerkmale</ReasonsTitle>
-                {result.reasons.map((reason: string, i: number) => (
-                  <ReasonTag key={i} $theme={theme}>{reason}</ReasonTag>
-                ))}
+                <ReasonsTitle $theme={theme}>
+                  {isBlocked ? "⚠️ Hinweise" : "Erkennungsmerkmale"}
+                </ReasonsTitle>
+                {isBlocked ? (
+                  // Für blockierte Seiten: Zeige Gründe als Liste
+                  result.reasons.map((reason: string, i: number) => (
+                    <WarningMessage key={i} $theme={theme}>
+                      • {reason}
+                    </WarningMessage>
+                  ))
+                ) : (
+                  // Für normale Ergebnisse: Zeige Tags
+                  result.reasons.map((reason: string, i: number) => (
+                    <ReasonTag key={i} $theme={theme}>{reason}</ReasonTag>
+                  ))
+                )}
               </ReasonsList>
             )}
           </CardComponent>
