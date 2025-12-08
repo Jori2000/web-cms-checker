@@ -36,6 +36,19 @@ const Title = styled.h2<{ $theme: Theme }>`
   }
 `;
 
+const ButtonGroup = styled.div`
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    order: 2;
+    flex-direction: column;
+    gap: 8px;
+  }
+`;
+
 const CopyButton = styled.button<{ $theme: Theme }>`
   padding: 10px 20px;
   border-radius: 8px;
@@ -60,7 +73,38 @@ const CopyButton = styled.button<{ $theme: Theme }>`
   
   @media (max-width: 768px) {
     width: 100%;
-    order: 2;
+    justify-content: center;
+    padding: 12px 16px;
+    font-size: 0.95rem;
+  }
+`;
+
+const DownloadButton = styled.button<{ $theme: Theme }>`
+  padding: 10px 20px;
+  border-radius: 8px;
+  background: ${props => props.$theme.cardBackground};
+  color: ${props => props.$theme.textPrimary};
+  font-weight: 600;
+  cursor: pointer;
+  border: 2px solid ${props => props.$theme.primary};
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: ${props => props.$theme.shadowHover};
+    background: ${props => props.$theme.primary};
+    color: white;
+  }
+  
+  &:active {
+    transform: translateY(0);
+  }
+  
+  @media (max-width: 768px) {
+    width: 100%;
     justify-content: center;
     padding: 12px 16px;
     font-size: 0.95rem;
@@ -199,6 +243,7 @@ const CopyFeedback = styled.span<{ $show: boolean }>`
 
 export default function ResultBox({ data, theme }: { data: any; theme: Theme }) {
   const [copied, setCopied] = useState(false);
+  const [downloaded, setDownloaded] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll zum Ergebnis, wenn neue Daten geladen werden
@@ -226,6 +271,41 @@ export default function ResultBox({ data, theme }: { data: any; theme: Theme }) 
     }
   };
 
+  const handleDownloadCSV = () => {
+    try {
+      const results = Array.isArray(data) ? data : [data];
+      
+      // CSV Header
+      let csvContent = "Website,CMS\n";
+      
+      // CSV Rows
+      results.forEach((result: any) => {
+        const website = result.url || "N/A";
+        const cms = result.cms || "Unbekannt";
+        // Escape CSV special characters
+        const escapedWebsite = `"${website.replace(/"/g, '""')}"`;
+        const escapedCMS = `"${cms.replace(/"/g, '""')}"`;
+        csvContent += `${escapedWebsite},${escapedCMS}\n`;
+      });
+      
+      // Create download
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `cms-results-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      
+      setDownloaded(true);
+      setTimeout(() => setDownloaded(false), 2000);
+    } catch (err) {
+      console.error("Download failed:", err);
+    }
+  };
+
   // Prüfen, ob es ein Array (CSV) oder ein einzelnes Ergebnis ist
   const isMultiple = Array.isArray(data);
   const results = isMultiple ? data : [data];
@@ -236,10 +316,16 @@ export default function ResultBox({ data, theme }: { data: any; theme: Theme }) 
         <Title $theme={theme}>
           {isMultiple ? `🔍 ${results.length} Ergebnisse` : "🔍 Ergebnis"}
         </Title>
-        <CopyButton $theme={theme} onClick={handleCopyAll}>
-          📋 JSON kopieren
-          <CopyFeedback $show={copied}>✓</CopyFeedback>
-        </CopyButton>
+        <ButtonGroup>
+          <DownloadButton $theme={theme} onClick={handleDownloadCSV}>
+            CSV Download
+            <CopyFeedback $show={downloaded}>✓</CopyFeedback>
+          </DownloadButton>
+          <CopyButton $theme={theme} onClick={handleCopyAll}>
+            📋 JSON kopieren
+            <CopyFeedback $show={copied}>✓</CopyFeedback>
+          </CopyButton>
+        </ButtonGroup>
       </Header>
 
       {results.map((result: any, index: number) => {
