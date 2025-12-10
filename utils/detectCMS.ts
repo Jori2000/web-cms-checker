@@ -37,8 +37,77 @@ export async function detectCMSFromUrl(url: string) {
   }
 }
 
+function detectVersion(html: string, cms: string): string | null {
+  // WordPress version detection
+  if (cms === "WordPress") {
+    // From generator tag
+    const wpGenMatch = html.match(/<meta[^>]*name=["']generator["'][^>]*content=["']WordPress\s+([\d.]+)/i);
+    if (wpGenMatch) return wpGenMatch[1];
+    
+    // From readme file reference
+    const wpReadmeMatch = html.match(/wp-includes\/js\/wp-embed\.min\.js\?ver=([\d.]+)/i);
+    if (wpReadmeMatch) return wpReadmeMatch[1];
+  }
+  
+  // Drupal version detection
+  if (cms === "Drupal") {
+    const drupalGenMatch = html.match(/<meta[^>]*name=["']generator["'][^>]*content=["']Drupal\s+([\d.]+)/i);
+    if (drupalGenMatch) return drupalGenMatch[1];
+    
+    const drupalCoreMatch = html.match(/Drupal\.settings[^}]*"version":"([\d.]+)"/i);
+    if (drupalCoreMatch) return drupalCoreMatch[1];
+  }
+  
+  // Joomla version detection
+  if (cms === "Joomla") {
+    const joomlaGenMatch = html.match(/<meta[^>]*name=["']generator["'][^>]*content=["']Joomla!?\s+([\d.]+)/i);
+    if (joomlaGenMatch) return joomlaGenMatch[1];
+  }
+  
+  // TYPO3 version detection
+  if (cms === "TYPO3") {
+    const typo3GenMatch = html.match(/<meta[^>]*name=["']generator["'][^>]*content=["']TYPO3\s+([\d.]+)/i);
+    if (typo3GenMatch) return typo3GenMatch[1];
+    
+    const typo3CommentMatch = html.match(/This website is powered by TYPO3[^v]*v?([\d.]+)/i);
+    if (typo3CommentMatch) return typo3CommentMatch[1];
+  }
+  
+  // Magento version detection
+  if (cms === "Magento") {
+    const magentoMatch = html.match(/Magento[\/\s]+([\d.]+)/i);
+    if (magentoMatch) return magentoMatch[1];
+  }
+  
+  // PrestaShop version detection
+  if (cms === "PrestaShop") {
+    const psMatch = html.match(/PrestaShop[\/\s]+([\d.]+)/i);
+    if (psMatch) return psMatch[1];
+  }
+  
+  // Shopify version detection (from powered by header or HTML)
+  if (cms === "Shopify") {
+    const shopifyMatch = html.match(/Shopify\.theme\s*=\s*{[^}]*"version":"([^"]+)"/i);
+    if (shopifyMatch) return shopifyMatch[1];
+  }
+  
+  // Ghost version detection
+  if (cms === "Ghost") {
+    const ghostGenMatch = html.match(/<meta[^>]*name=["']generator["'][^>]*content=["']Ghost\s+([\d.]+)/i);
+    if (ghostGenMatch) return ghostGenMatch[1];
+  }
+  
+  // Craft CMS version detection
+  if (cms === "Craft CMS") {
+    const craftMatch = html.match(/Craft\s+CMS\s+([\d.]+)/i);
+    if (craftMatch) return craftMatch[1];
+  }
+  
+  return null;
+}
+
 export function detectAll(html: string, headers: Record<string, string>) {
-  const results: { cms: string; confidence: number; reasons: string[] }[] = [];
+  const results: { cms: string; confidence: number; reasons: string[]; version?: string }[] = [];
 
   function addResult(cms: string, confidence: number, reason: string) {
     const existing = results.find((r) => r.cms === cms);
@@ -269,5 +338,16 @@ export function detectAll(html: string, headers: Record<string, string>) {
   });
 
   results.sort((a, b) => b.confidence - a.confidence);
-  return results[0];
+  
+  const topResult = results[0];
+  
+  // Versuche Version zu erkennen
+  if (topResult && topResult.cms !== "Unbekannt") {
+    const version = detectVersion(html, topResult.cms);
+    if (version) {
+      topResult.version = version;
+    }
+  }
+  
+  return topResult;
 }
