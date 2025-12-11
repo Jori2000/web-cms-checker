@@ -125,8 +125,6 @@ export function detectAll(html: string, headers: Record<string, string>) {
   // Suche nach Generator Meta-Tag (unterstützt verschiedene Attribut-Reihenfolgen, Leerzeichen und zusätzliche Attribute)
   const generatorMatch = html.match(/<meta[^>]*name=["']generator["'][^>]*content=["']([^"']+)["'][^>]*>/i) ||
                          html.match(/<meta[^>]*content=["']([^"']+)["'][^>]*name=["']generator["'][^>]*>/i);
-  
-  console.log('Generator Meta Tag:', generatorMatch);
   if (generatorMatch) {
     const gen = generatorMatch[1].toLowerCase();
     if (gen.includes("wordpress")) addResult("WordPress", 80, "Generator-Tag");

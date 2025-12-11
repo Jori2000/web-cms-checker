@@ -1,7 +1,7 @@
 "use client";
 
+import React, { useState, useEffect, useRef } from "react";
 import styled from "styled-components";
-import { useState, useEffect, useRef } from "react";
 import type { Theme } from "@/styles/theme";
 
 const Container = styled.div`
